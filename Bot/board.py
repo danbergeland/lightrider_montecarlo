@@ -1,6 +1,6 @@
 import copy
 import sys
-from hashlib import md5
+from hashlib import sha256
 
 PLAYER1, PLAYER2, EMPTY, BLOCKED = [0, 1, 2, 3]
 S_PLAYER1, S_PLAYER2, S_EMPTY, S_BLOCKED, = ['0', '1', '.', 'x']
@@ -44,7 +44,7 @@ class Board:
         return cell
 
     def parse(self, players, data):
-        self.hash = md5().update(data).digest()
+        self.hash = sha256(data.encode('utf-8')).hexdigest()
         cells = data.split(',')
         col = 0
         row = 0
