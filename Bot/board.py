@@ -25,11 +25,11 @@ class Board:
     def parse_cell_char(self, players, row, col, char):
         result = -1
         if char == S_PLAYER1:
-            players[0].row = row;
-            players[0].col = col;
+            players[0].row = row
+            players[0].col = col
         elif char == S_PLAYER2:
-            players[1].row = row;
-            players[1].col = col;
+            players[1].row = row
+            players[1].col = col
         for (i, symbol) in CHARTABLE:
             if symbol == char:
                 result = i

@@ -14,9 +14,9 @@ class Bot:
         self.episode_buffer = []
         #epsilon must be between 0 and 1.0
         #1.0 is completely stochastic, 0.0 is the greedy policy
-        self.epsilon = .5
+        self.epsilon = .35
         #gamma is the discount rate, 1.0 props end reward through all states
-        self.gamma = .9
+        self.gamma = .99
         #setup rewards
         self.turn_reward = -1.0
         self.win_reward = 100.0
@@ -61,13 +61,10 @@ class Bot:
         for i, move in enumerate(self.moves):
             if move in legal_move_names:
                 one_hot_moves[i] = 1.0
-        print(legal_move_names, one_hot_moves,file=sys.stderr)
-        sys.stderr.flush()
         return one_hot_moves
         
     def make_move_probs(self, action_values):
         possible_moves = self.one_hot_possible_moves()
-
         is_max = [int(x==np.max(action_values)) for x in action_values]
         proposed_probs = np.zeros((4,))
         #if multiple max values, choose randomly from max values
@@ -89,8 +86,6 @@ class Bot:
     
     def get_reward(self,move):
         my_legal = self.game.field.legal_moves(self.game.my_botid, self.game.players)
-        print(my_legal,file=sys.stderr)
-        sys.stderr.flush()
         if len(my_legal) == 0:
             sys.stderr.write('I lose\n')
             sys.stderr.flush()
@@ -103,6 +98,8 @@ class Bot:
         return self.turn_reward, False
 
     def update_q_table(self):
+        print(self.total_reward,file=sys.stderr)
+        sys.stderr.flush()
         episode_length = len(self.episode_buffer)
         #apply discounts through states
         reward_discount_rates = [self.gamma**x for x in np.arange(episode_length)]
@@ -113,7 +110,7 @@ class Bot:
         for i, episode_step in enumerate(self.episode_buffer):
             state_hash, action, reward = episode_step
             action_value = np.sum(np.multiply(reward_discount_rates[0:episode_length-i],reward_trace[i:]))
-            value_error = action_value - self.q_table[state_hash]
+            value_error = action_value - self.q_table[state_hash][action]
             self.q_table[state_hash][action] += self.update_rate*value_error
         
         #pickle can't save defaultdict with lambda
